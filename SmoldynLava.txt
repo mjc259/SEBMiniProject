@@ -8,8 +8,8 @@ dim 2
 species AAfull AAhungry ABfull ABhungry BBfull BBhungry AAAA AAAB ABAB AABB ABBB BBBB food  
 
 time_start 0
-time_stop 100000
-time_step 0.1
+time_stop Ending
+time_step Stepping
 
 color AAfull blue
 color AAhungry blue
@@ -27,13 +27,13 @@ boundaries y -50 50 r
 
 ### General reactions
 
-mol 100 AAhungry u u
-mol 100 ABhungry u u
-mol 100 BBhungry u u
-mol 50 food u u
+mol 60 AAhungry u u
+mol 60 ABhungry u u
+mol 60 BBhungry u u
+mol 180 food u u
 
-variable full = 0.5
-variable hangry = 1.5
+variable full = Generation_Time # 1
+variable hangry = Generation_Time # 1.5
 
 difc AAfull full
 difc ABfull full
@@ -42,51 +42,54 @@ difc AAhungry hangry
 difc ABhungry hangry
 difc BBhungry hangry
 
-reaction foodproduction 0 -> food 10^-5.2
-reaction decay food -> 0 10^-3.8
+variable farming = Generation_Time*10^-5.2
+variable fertiliser = Generation_Time*10^-3.8
+
+reaction foodproduction 0 -> food farming
+reaction decay food -> 0 fertiliser
 
 define matingbaseprob 10^-1
 define s1 1
 define s2 1
 define s3 1
 
-variable mating1rate = (s1^2)*matingbaseprob
-variable mating2rate = s1*s2*matingbaseprob
-variable mating3rate = s1*s3*matingbaseprob
-variable mating4rate = (s2^2)*matingbaseprob
-variable mating5rate = s2*s3*matingbaseprob
-variable mating6rate = (s3^2)*matingbaseprob
+variable mating1rate = Generation_Time*(s1^2)*matingbaseprob
+variable mating2rate = Generation_Time*s1*s2*matingbaseprob
+variable mating3rate = Generation_Time*s1*s3*matingbaseprob
+variable mating4rate = Generation_Time*(s2^2)*matingbaseprob
+variable mating5rate = Generation_Time*s2*s3*matingbaseprob
+variable mating6rate = Generation_Time*(s3^2)*matingbaseprob
 
-reaction mating1 AAfull + AAfull -> AAAA mating1rate
-reaction mating2 AAfull + ABfull -> AAAB mating2rate
-reaction mating3 AAfull + BBfull -> AABB mating3rate
-reaction mating4 ABfull + ABfull -> ABAB mating4rate
-reaction mating5 ABfull + BBfull -> ABBB mating5rate
-reaction mating6 BBfull + BBfull -> BBBB mating6rate
+reaction mating1 AAfull + AAfull -> AAhungry + AAhungry + AAAA mating1rate
+reaction mating2 AAfull + ABfull -> AAhungry + ABhungry + AAAB mating2rate
+reaction mating3 AAfull + BBfull -> AAhungry + BBhungry + AABB mating3rate
+reaction mating4 ABfull + ABfull -> ABhungry + ABhungry + ABAB mating4rate
+reaction mating5 ABfull + BBfull -> ABhungry + BBhungry + ABBB mating5rate
+reaction mating6 BBfull + BBfull -> BBhungry + BBhungry + BBBB mating6rate
 
-define offspring 1
+define offspring Generation_Time
 
 variable offfive = 0.5*offspring
 variable offtwo = 0.25*offspring  
 
-reaction offspring1 AAAA -> AAhungry + AAhungry + AAhungry offspring
-reaction offspring2b AAAB -> AAhungry + ABhungry + ABhungry offfive
-reaction offspring2a AAAB -> AAhungry + ABhungry + AAhungry offfive
-reaction offspring3a ABAB -> ABhungry + ABhungry + ABhungry offfive
-reaction offspring3c ABAB -> ABhungry + ABhungry + BBhungry offtwo
-reaction offspring3b ABAB -> ABhungry + ABhungry + AAhungry offtwo
-reaction offspring4b ABBB -> ABhungry + BBhungry + BBhungry offfive
-reaction offspring4a ABBB -> ABhungry + BBhungry + ABhungry offfive
-reaction offspring5 BBBB -> BBhungry + BBhungry + BBhungry offspring
-reaction offspring6 AABB -> AAhungry + BBhungry + ABhungry offspring
+reaction off1 AAAA -> AAhungry offspring
+reaction off2b AAAB -> ABhungry offfive
+reaction off2a AAAB -> AAhungry offfive
+reaction off3a ABAB -> ABhungry offfive
+reaction off3c ABAB -> BBhungry offtwo
+reaction off3b ABAB -> AAhungry offtwo
+reaction off4b ABBB -> BBhungry offfive
+reaction off4a ABBB -> ABhungry offfive
+reaction off5 BBBB -> BBhungry offspring
+reaction off6 AABB -> ABhungry offspring
 
-variable appetite = 10^-3 # 3
+variable appetite = Generation_Time*10^-3 # 3
 
 reaction hungryAAfull AAfull -> AAhungry appetite
 reaction hungryABfull ABfull -> ABhungry appetite
 reaction hungryBBfull BBfull -> BBhungry appetite
 
-variable death = 10^-3.3 # 5
+variable death = Generation_Time*10^-3.3 # 5
 
 reaction hungryAAhungry AAhungry -> 0 death
 reaction hungryABhungry ABhungry -> 0 death
@@ -125,7 +128,7 @@ start_surface WesternPass
 #action all both reflect
 color both red 1
 polygon both edge
-rate all fsoln bsoln 7.0*10^-4 # Lava to Tule rate
+rate all fsoln bsoln 7.0*10^-5 # Lava to Tule rate
 rate all bsoln fsoln 2.1*10^-3 # Tule to Lava rate
 panel rect +0 50 -50 100
 end_surface
@@ -165,7 +168,7 @@ end_compartment
 ### Compartment Specific Reactions 
 
 ## Tule
-define R1baseEating 1 #3
+define R1baseEating Generation_Time #3
 define R1s11 0
 define R1s12 0
 define R1s22 0
@@ -180,10 +183,12 @@ reaction compartment=Tule R1foodBB BBhungry + food -> BBfull R1eating3
 
 
 ## Lava
-define R2baseEating 1 #3
+define R2baseEating Generation_Time #3
 define R2s11 0
 define R2s12 0
+ifundefine R2s22
 define R2s22 -0.389
+endif
 
 variable R2eating1 = (1+R2s11)*R2baseEating
 variable R2eating2 = (1+R2s12)*R2baseEating
@@ -195,7 +200,7 @@ reaction compartment=Lava R2foodBB BBhungry + food -> BBfull R2eating3
 
 
 ## ONeils
-define R3baseEating 1 #3
+define R3baseEating Generation_Time #3
 define R3s11 0
 define R3s12 0
 define R3s22 0
@@ -209,9 +214,47 @@ reaction compartment=ONeils R3foodAB ABhungry + food -> ABfull R3eating2
 reaction compartment=ONeils R3foodBB BBhungry + food -> BBfull R3eating3
 
 
+
+## Serial Numbers for lineage tracking
+reaction_serialnum mating1 r1 r1 new
+reaction_serialnum mating2 r1 r2 new 
+reaction_serialnum mating3 r1 r2 new
+reaction_serialnum mating4 r1 r2 new
+reaction_serialnum mating5 r1 r2 new
+reaction_serialnum mating6 r1 r2 new
+
+reaction_serialnum off1 r1
+reaction_serialnum off2b r1
+reaction_serialnum off2a r1
+reaction_serialnum off3a r1
+reaction_serialnum off3c r1
+reaction_serialnum off3b r1
+reaction_serialnum off4b r1
+reaction_serialnum off4a r1
+reaction_serialnum off5 r1
+reaction_serialnum off6 r1
+
+reaction_log Matings.txt mating1 all
+reaction_log Matings.txt mating2 all
+reaction_log Matings.txt mating3 all
+reaction_log Matings.txt mating4 all
+reaction_log Matings.txt mating5 all
+reaction_log Matings.txt mating6 all
+
+reaction_log Offsprings.txt off1 all
+reaction_log Offsprings.txt off2b all
+reaction_log Offsprings.txt off2a all
+reaction_log Offsprings.txt off3a all
+reaction_log Offsprings.txt off3c all
+reaction_log Offsprings.txt off3b all
+reaction_log Offsprings.txt off4b all
+reaction_log Offsprings.txt off4a all
+reaction_log Offsprings.txt off5 all
+reaction_log Offsprings.txt off6 all
+
 #cmd b pause
 
-output_files test.txt
-cmd i 0 100000 10 molcountincmpts Tule Lava ONeils test.txt
+output_files Matings.txt Offsprings.txt
+cmd i 0 Ending Stepping molcountincmpts Tule Lava ONeils stdout
 
 end_file
