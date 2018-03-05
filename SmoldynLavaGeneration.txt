@@ -1,5 +1,13 @@
 ## Box with particles
 
+#system2(command = 'smoldyn', args = paste0('SmoldynLavaGeneration.txt', 
+#                                             ' --define Generation_Time=',Generation_Time,
+#                                             ' --define Ending=',GenMax,
+#                                             ' --define Stepping=',format(signif(Step_base/Generation_Time, 3), scientific = F),
+#                                             ' --define Number=',i,
+#                                             ' -twq'))
+
+
 #random_seed 1
 
 #graphics opengl_good
