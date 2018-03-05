@@ -1,5 +1,9 @@
 ## Box with particles
 
+#Generation_Time <- 3620
+#Step_base <- 0.1
+#GenMax <- 10
+
 #system2(command = 'smoldyn', args = paste0('SmoldynLavaGeneration.txt', 
 #                                             ' --define Generation_Time=',Generation_Time,
 #                                             ' --define Ending=',GenMax,
