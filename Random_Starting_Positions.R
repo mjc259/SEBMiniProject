@@ -8,7 +8,7 @@ base_pop_ABhungry <- 50
 base_pop_ABfull <- 40
 base_pop_BBhungry <- 25
 base_pop_BBfull <- 20
-base_food <- 180
+base_food <- 55
 
 pop_AAhungry <- base_pop_AAhungry * pop_size_scale_factor
 pop_AAfull <- base_pop_AAfull * pop_size_scale_factor
