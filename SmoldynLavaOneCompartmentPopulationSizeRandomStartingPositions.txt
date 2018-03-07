@@ -1,0 +1,276 @@
+## Box with particles
+
+#random_seed 1
+
+#graphics opengl_good
+
+variable End_time = Ending
+dim 2
+boxsize 10
+species AAfull AAhungry ABfull ABhungry BBfull BBhungry AAAA AAAB ABAB AABB ABBB BBBB food  
+variable pop_size_scale_factor = POP_SIZE_SCALE_FACTOR^0.5
+time_start 0
+time_stop End_time
+time_step Stepping
+
+
+
+color AAfull blue
+color AAhungry blue
+color ABfull red
+color ABhungry red
+color BBfull yellow
+color BBhungry yellow
+color food green 
+
+display_size all 2
+display_size food 0.5
+
+variable boundary_position1 = (-50)*pop_size_scale_factor
+variable boundary_position2 = 250*pop_size_scale_factor
+variable boundary_position10 = 50*pop_size_scale_factor
+
+boundaries x boundary_position1 boundary_position2 r
+boundaries y boundary_position1 boundary_position10 r
+
+### General reactions
+
+read_file pop_size_starting_positions_POP_SIZE_SCALE_FACTOR_SIMNUM.txt
+
+variable full = Generation_Time # 1
+variable hangry = Generation_Time # 1.5
+
+difc AAfull full
+difc ABfull full
+difc BBfull full
+difc AAhungry hangry
+difc ABhungry hangry
+difc BBhungry hangry
+
+variable farming = Generation_Time*10^-5.2
+variable fertiliser = Generation_Time*10^-3.8
+
+reaction foodproduction 0 -> food farming
+reaction decay food -> 0 fertiliser
+
+define matingbaseprob 10^-1
+define s1 1
+define s2 1
+define s3 1
+
+variable mating1rate = Generation_Time*(s1^2)*matingbaseprob
+variable mating2rate = Generation_Time*s1*s2*matingbaseprob
+variable mating3rate = Generation_Time*s1*s3*matingbaseprob
+variable mating4rate = Generation_Time*(s2^2)*matingbaseprob
+variable mating5rate = Generation_Time*s2*s3*matingbaseprob
+variable mating6rate = Generation_Time*(s3^2)*matingbaseprob
+
+reaction mating1 AAfull + AAfull -> AAhungry + AAhungry + AAAA mating1rate
+reaction mating2 AAfull + ABfull -> AAhungry + ABhungry + AAAB mating2rate
+reaction mating3 AAfull + BBfull -> AAhungry + BBhungry + AABB mating3rate
+reaction mating4 ABfull + ABfull -> ABhungry + ABhungry + ABAB mating4rate
+reaction mating5 ABfull + BBfull -> ABhungry + BBhungry + ABBB mating5rate
+reaction mating6 BBfull + BBfull -> BBhungry + BBhungry + BBBB mating6rate
+
+define offspring Generation_Time
+
+variable offfive = 0.5*offspring
+variable offtwo = 0.25*offspring  
+
+reaction off1 AAAA -> AAhungry offspring
+reaction off2b AAAB -> ABhungry offfive
+reaction off2a AAAB -> AAhungry offfive
+reaction off3a ABAB -> ABhungry offfive
+reaction off3c ABAB -> BBhungry offtwo
+reaction off3b ABAB -> AAhungry offtwo
+reaction off4b ABBB -> BBhungry offfive
+reaction off4a ABBB -> ABhungry offfive
+reaction off5 BBBB -> BBhungry offspring
+reaction off6 AABB -> ABhungry offspring
+
+variable appetite = Generation_Time*10^-3 # 3
+
+reaction hungryAAfull AAfull -> AAhungry appetite
+reaction hungryABfull ABfull -> ABhungry appetite
+reaction hungryBBfull BBfull -> BBhungry appetite
+
+variable death = Generation_Time*10^-3.3 # 5
+
+reaction hungryAAhungry AAhungry -> 0 death
+reaction hungryABhungry ABhungry -> 0 death
+reaction hungryBBhungry BBhungry -> 0 death
+
+### Surfaces
+
+variable boundary_position3 = 50*pop_size_scale_factor
+variable boundary_position4 = 150*pop_size_scale_factor
+variable boundary_position5 = 100*pop_size_scale_factor
+
+start_surface Outline1
+action all both reflect
+color both purple 1
+polygon both edge
+panel rect +1 boundary_position1 boundary_position3 boundary_position5
+panel rect +1 boundary_position1 boundary_position1 boundary_position5
+panel rect +0 boundary_position1 boundary_position1 boundary_position5
+end_surface
+
+start_surface Outline2
+action all both reflect
+color both purple 1
+polygon both edge
+panel rect +1 boundary_position3 boundary_position3 boundary_position5
+panel rect +1 boundary_position3 boundary_position1 boundary_position5
+#panel rect +0 boundary_position4 boundary_position1 boundary_position5
+end_surface
+
+start_surface Outline3
+action all both reflect
+color both purple 1
+polygon both edge
+panel rect +1 boundary_position4 boundary_position3 boundary_position5
+panel rect +1 boundary_position4 boundary_position1 boundary_position5
+panel rect +0 boundary_position2 boundary_position1 boundary_position5
+end_surface
+
+
+start_surface WesternPass
+action all both transmit
+color both red 1
+polygon both edge
+# rate all fsoln bsoln 7.0*10^-5 # Lava to Tule rate
+# rate all bsoln fsoln 2.1*10^-3 # Tule to Lava rate
+panel rect +0 boundary_position3 boundary_position1 boundary_position5
+end_surface
+
+start_surface EasternPass
+#action all both transmit
+color both red 1
+polygon both edge
+# rate all fsoln bsoln 7.5*10^-3 # ONeils to Lava rate
+# rate all bsoln fsoln 7.3*10^-4 # Lava to ONeils rate
+panel rect +0 boundary_position4 boundary_position1 boundary_position5
+end_surface
+
+
+
+### Compartments
+
+variable boundary_position5 = 0*pop_size_scale_factor
+variable boundary_position6 = 100*pop_size_scale_factor
+variable boundary_position7 = 200*pop_size_scale_factor
+
+start_compartment Tule
+surface Outline1
+surface WesternPass
+point boundary_position5 boundary_position5
+end_compartment
+
+start_compartment Lava
+surface Outline2
+surface WesternPass
+surface EasternPass
+point boundary_position6 boundary_position5
+end_compartment
+
+start_compartment ONeils
+surface Outline3
+surface EasternPass
+point boundary_position7 boundary_position5
+end_compartment
+
+
+### Compartment Specific Reactions 
+
+## Tule
+define R1baseEating Generation_Time #3
+define R1s11 0
+define R1s12 0
+define R1s22 0
+
+variable R1eating1 = (1+R1s11)*R1baseEating
+variable R1eating2 = (1+R1s12)*R1baseEating
+variable R1eating3 = (1+R1s22)*R1baseEating
+
+reaction compartment=Tule R1foodAA AAhungry + food -> AAfull R1eating1
+reaction compartment=Tule R1foodAB ABhungry + food -> ABfull R1eating2
+reaction compartment=Tule R1foodBB BBhungry + food -> BBfull R1eating3
+
+
+## Lava
+define R2baseEating Generation_Time #3
+define R2s11 0
+define R2s12 0
+ifundefine R2s22
+define R2s22 -0.389
+endif
+
+variable R2eating1 = (1+R2s11)*R2baseEating
+variable R2eating2 = (1+R2s12)*R2baseEating
+variable R2eating3 = (1+R2s22)*R2baseEating
+
+reaction compartment=Lava R2foodAA AAhungry + food -> AAfull R2eating1
+reaction compartment=Lava R2foodAB ABhungry + food -> ABfull R2eating2
+reaction compartment=Lava R2foodBB BBhungry + food -> BBfull R2eating3
+
+
+
+## ONeils
+define R3baseEating Generation_Time #3
+define R3s11 0
+define R3s12 0
+define R3s22 0
+
+variable R3eating1 = (1+R3s11)*R3baseEating
+variable R3eating2 = (1+R3s12)*R3baseEating
+variable R3eating3 = (1+R3s22)*R3baseEating
+
+reaction compartment=ONeils R3foodAA AAhungry + food -> AAfull R3eating1
+reaction compartment=ONeils R3foodAB ABhungry + food -> ABfull R3eating2
+reaction compartment=ONeils R3foodBB BBhungry + food -> BBfull R3eating3
+
+
+/*
+## Serial Numbers for lineage tracking
+reaction_serialnum mating1 r1 r1 new
+reaction_serialnum mating2 r1 r2 new 
+reaction_serialnum mating3 r1 r2 new
+reaction_serialnum mating4 r1 r2 new
+reaction_serialnum mating5 r1 r2 new
+reaction_serialnum mating6 r1 r2 new
+
+reaction_serialnum off1 r1
+reaction_serialnum off2b r1
+reaction_serialnum off2a r1
+reaction_serialnum off3a r1
+reaction_serialnum off3c r1
+reaction_serialnum off3b r1
+reaction_serialnum off4b r1
+reaction_serialnum off4a r1
+reaction_serialnum off5 r1
+reaction_serialnum off6 r1
+
+reaction_log Matings.txt mating1 all
+reaction_log Matings.txt mating2 all
+reaction_log Matings.txt mating3 all
+reaction_log Matings.txt mating4 all
+reaction_log Matings.txt mating5 all
+reaction_log Matings.txt mating6 all
+
+reaction_log Offsprings.txt off1 all
+reaction_log Offsprings.txt off2b all
+reaction_log Offsprings.txt off2a all
+reaction_log Offsprings.txt off3a all
+reaction_log Offsprings.txt off3c all
+reaction_log Offsprings.txt off3b all
+reaction_log Offsprings.txt off4b all
+reaction_log Offsprings.txt off4a all
+reaction_log Offsprings.txt off5 all
+reaction_log Offsprings.txt off6 all
+*/
+#cmd b pause
+
+output_files Pop_Size_POP_SIZE_SCALE_FACTOR_SIMNUM.txt
+cmd i 0 300 0.1 molcountincmpts Tule Lava ONeils Pop_Size_POP_SIZE_SCALE_FACTOR_SIMNUM.txt
+
+end_file
