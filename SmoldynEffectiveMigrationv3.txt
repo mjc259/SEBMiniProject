@@ -2,7 +2,7 @@
 
 #random_seed 1
 
-graphics opengl_better
+#graphics opengl_better
 
 dim 2
 boxsize 10
@@ -34,7 +34,9 @@ mol 60 ABhungry u u
 #mol 40 ABfull u u
 mol 60 BBhungry u u
 #mol 20 BBfull u u
-mol 180 food u u
+mol 55 food u u
+
+#read_file pop_size_starting_positions_POP_SIZE_SCALE_FACTOR_SIMNUM.txt
 
 ifundefine dscale
 define dscale 1
@@ -154,15 +156,15 @@ end_surface
 
 define Mconst 10^0
 
-variable Lava2TuleA = Mconst*7.0*10^-5 # A is B, B is b
-variable Tule2LavaA = Mconst*2.1*10^-3
-variable Lava2TuleB = Mconst*4.0*10^-4
-variable Tule2LavaB = Mconst*4.8*10^-3
+variable Lava2TuleA = 7.0*10^-5 # A is B, B is b
+variable Tule2LavaA = 2.1*10^-3
+variable Lava2TuleB = 4.0*10^-4
+variable Tule2LavaB = 4.8*10^-3
 
-variable Lava2ONeilsA = Mconst*7.3*10^-4
-variable ONeils2LavaA = Mconst*7.5*10^-3
-variable Lava2ONeilsB = Mconst*4.0*10^-4
-variable ONeils2LavaB = Mconst*4.8*10^-3
+variable Lava2ONeilsA = 7.3*10^-4
+variable ONeils2LavaA = 7.5*10^-3
+variable Lava2ONeilsB = 4.0*10^-4
+variable ONeils2LavaB = 4.8*10^-3
 
 
 
@@ -170,19 +172,23 @@ start_surface WesternPass
 #action all both reflect
 color both red 1
 polygon both edge
-rate AAfull fsoln bsoln Lava2TuleA # Lava to Tule rate
-rate AAhungry fsoln bsoln Lava2TuleA # Lava to Tule rate
-rate ABfull fsoln bsoln Lava2TuleA # Lava to Tule rate
-rate ABhungry fsoln bsoln Lava2TuleA # Lava to Tule rate
-rate BBfull fsoln bsoln Lava2TuleB # Lava to Tule rate
-rate BBhungry fsoln bsoln Lava2TuleB # Lava to Tule rate
+rate all fsoln front Mconst 
+#rate all front fsoln Mconst
+rate AAfull front bsoln Lava2TuleA # Lava to Tule rate
+rate AAhungry front bsoln Lava2TuleA # Lava to Tule rate
+rate ABfull front bsoln Lava2TuleA # Lava to Tule rate
+rate ABhungry front bsoln Lava2TuleA # Lava to Tule rate
+rate BBfull front bsoln Lava2TuleB # Lava to Tule rate
+rate BBhungry front bsoln Lava2TuleB # Lava to Tule rate
 
-rate AAfull bsoln fsoln Tule2LavaA # Lava to Tule rate
-rate AAhungry bsoln fsoln Tule2LavaA # Lava to Tule rate
-rate ABfull bsoln fsoln Tule2LavaA # Lava to Tule rate
-rate ABhungry bsoln fsoln Tule2LavaA # Lava to Tule rate
-rate BBfull bsoln fsoln Tule2LavaB # Lava to Tule rate
-rate BBhungry bsoln fsoln Tule2LavaB # Lava to Tule rate
+rate all bsoln back Mconst
+#rate all back bsoln Mconst 
+rate AAfull back fsoln Tule2LavaA # Lava to Tule rate
+rate AAhungry back fsoln Tule2LavaA # Lava to Tule rate
+rate ABfull back fsoln Tule2LavaA # Lava to Tule rate
+rate ABhungry back fsoln Tule2LavaA # Lava to Tule rate
+rate BBfull back fsoln Tule2LavaB # Lava to Tule rate
+rate BBhungry back fsoln Tule2LavaB # Lava to Tule rate
 panel rect +0 50 -50 100
 end_surface
 
@@ -190,19 +196,23 @@ start_surface EasternPass
 #action all both reflect
 color both red 1
 polygon both edge
-rate AAfull fsoln bsoln Lava2ONeilsA # Lava to ONeils rate
-rate AAhungry fsoln bsoln Lava2ONeilsA # Lava to ONeils rate
-rate ABfull fsoln bsoln Lava2ONeilsA # Lava to ONeils rate
-rate ABhungry fsoln bsoln Lava2ONeilsA # Lava to ONeils rate
-rate BBfull fsoln bsoln Lava2ONeilsB # Lava to ONeils rate
-rate BBhungry fsoln bsoln Lava2ONeilsB # Lava to ONeils rate
+rate all fsoln front Mconst 
+rate all front fsoln Mconst
+rate AAfull front bsoln Lava2ONeilsA # Lava to ONeils rate
+rate AAhungry front bsoln Lava2ONeilsA # Lava to ONeils rate
+rate ABfull front bsoln Lava2ONeilsA # Lava to ONeils rate
+rate ABhungry front bsoln Lava2ONeilsA # Lava to ONeils rate
+rate BBfull front bsoln Lava2ONeilsB # Lava to ONeils rate
+rate BBhungry front bsoln Lava2ONeilsB # Lava to ONeils rate
 
-rate AAfull bsoln fsoln ONeils2LavaA # Lava to ONeils rate
-rate AAhungry bsoln fsoln ONeils2LavaA # Lava to ONeils rate
-rate ABfull bsoln fsoln ONeils2LavaA # Lava to ONeils rate
-rate ABhungry bsoln fsoln ONeils2LavaA # Lava to ONeils rate
-rate BBfull bsoln fsoln ONeils2LavaB # Lava to ONeils rate
-rate BBhungry bsoln fsoln ONeils2LavaB # Lava to ONeils rate
+rate all bsoln back Mconst
+rate all back bsoln Mconst 
+rate AAfull back fsoln ONeils2LavaA # Lava to ONeils rate
+rate AAhungry back fsoln ONeils2LavaA # Lava to ONeils rate
+rate ABfull back fsoln ONeils2LavaA # Lava to ONeils rate
+rate ABhungry back fsoln ONeils2LavaA # Lava to ONeils rate
+rate BBfull back fsoln ONeils2LavaB # Lava to ONeils rate
+rate BBhungry back fsoln ONeils2LavaB # Lava to ONeils rate
 panel rect +0 150 -50 100
 end_surface
 
@@ -326,11 +336,11 @@ reaction_serialnum off621 r1
 reaction_serialnum off612 r1
 reaction_serialnum off622 r1
 
-cmd b pause
+#cmd b pause
 
-#output_root Testing/
-#output_files MolCountsNumber.txt SpeciesNumber.txt
+output_root Testing/
+output_files MolCountsNumber.txt SpeciesNumber.txt
 #cmd i 0 Ending 0.1 molcountincmpts Tule Lava ONeils MolCountsNumber.txt
-#cmd i 0 Ending 1 listmols2 SpeciesNumber.txt
+cmd i 0 Ending 0.5 listmols2 SpeciesNumber.txt
 
 end_file
