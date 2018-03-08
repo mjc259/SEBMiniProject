@@ -11,23 +11,30 @@ library(data.table)
 #   #cat(s[i],'\n')
 # }
 
-k <- 3
+k <- 1
 
-CurrentFiles <- list.files(pattern = 'testv5')
+CurrentFiles <- list.files('./Testing')
 if(length(CurrentFiles) > 0){
-  file.remove(CurrentFiles)
+  file.remove(paste0('./Testing/',CurrentFiles))
 }
 
-Generation_Time <- 3620
-End_base <- 1000000
+Generation_Time <- 3935
+End_base <- 10000 # --deine Ending=signif(End_base/Generation_Time, 3)
 Step_base <- 0.1
+GenMax <- 5
+
 
 for(i in 1:k){
-  system2(command = 'smoldyn', args = paste0('SmoldynLavaGeneration.txt --define Generation_Time=',Generation_Time,' --define Ending=',signif(End_base/Generation_Time, 3),' --define Stepping=',format(signif(Step_base/Generation_Time, 3), scientific = F),' -twq'), stdout = paste0('testv5',i,'.txt'))
-  #cat(s[i],'\n')
+  system2(command = 'smoldyn', args = paste0('SmoldynEffectiveMigrationv2.txt', 
+                                             ' --define Generation_Time=',Generation_Time,
+                                             ' --define Ending=',GenMax,
+                                             ' --define Stepping=',format(signif(Step_base/Generation_Time, 3), scientific = F),
+                                             ' --define Number=',i,
+                                             ' -twq'))
 }
 
-Files <- list.files(pattern = 'testv5')
+setwd('./Testing')
+Files <- list.files(pattern = 'MolCounts')
 
 dat <- lapply(1:k, function(i){
   fil <- Files[i]
@@ -98,3 +105,7 @@ grid.arrange(ggTule, ggLava, ggONeils)
 # colnames(AlleleCount)[1] <- 'Time'
 # ggplot(AlleleCount, mapping = aes (x = Time, y = Count)) + geom_smooth(aes(colour = factor(Allele)))
 
+Rxns <- read.table('ReactionLogSlim.txt') # Had to bash down to 2 columns
+Rxns$V2 <- as.character(Rxns$V2)
+Off <- Rxns[grep('off', Rxns$V2),]
+Death <- Rxns[grep('death', Rxns$V2),]
