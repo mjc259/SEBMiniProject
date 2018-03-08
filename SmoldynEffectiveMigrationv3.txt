@@ -28,15 +28,15 @@ boundaries y -50 50 r
 
 ### General reactions
 
-mol 60 AAhungry u u # 
+#mol 60 AAhungry u u # 
 #mol 20 AAfull u u
-mol 60 ABhungry u u
+#mol 60 ABhungry u u
 #mol 40 ABfull u u
-mol 60 BBhungry u u
+#mol 60 BBhungry u u
 #mol 20 BBfull u u
-mol 55 food u u
+#mol 55 food u u
 
-#read_file pop_size_starting_positions_POP_SIZE_SCALE_FACTOR_SIMNUM.txt
+read_file starting_positions_4.0.txt # or 1.0
 
 ifundefine dscale
 define dscale 1
@@ -154,7 +154,7 @@ panel rect +1 150 -50 100
 panel rect +0 250 -50 100
 end_surface
 
-define Mconst 10^0
+define Mconst 10^3
 
 variable Lava2TuleA = 7.0*10^-5 # A is B, B is b
 variable Tule2LavaA = 2.1*10^-3
@@ -338,9 +338,9 @@ reaction_serialnum off622 r1
 
 #cmd b pause
 
-output_root Testing/
+output_root Testing2/
 output_files MolCountsNumber.txt SpeciesNumber.txt
-#cmd i 0 Ending 0.1 molcountincmpts Tule Lava ONeils MolCountsNumber.txt
-cmd i 0 Ending 0.5 listmols2 SpeciesNumber.txt
+cmd i 0 Ending 0.1 molcountincmpts Tule Lava ONeils MolCountsNumber.txt
+cmd i 0 Ending 0.1 listmols2 SpeciesNumber.txt
 
 end_file
