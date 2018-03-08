@@ -2,7 +2,7 @@
 
 #random_seed 1
 
-#graphics opengl_better
+graphics opengl_good
 
 dim 2
 boxsize 10
@@ -173,7 +173,7 @@ start_surface WesternPass
 color both red 1
 polygon both edge
 rate all fsoln front Mconst 
-#rate all front fsoln Mconst
+rate all front fsoln Mconst
 rate AAfull front bsoln Lava2TuleA # Lava to Tule rate
 rate AAhungry front bsoln Lava2TuleA # Lava to Tule rate
 rate ABfull front bsoln Lava2TuleA # Lava to Tule rate
@@ -182,7 +182,7 @@ rate BBfull front bsoln Lava2TuleB # Lava to Tule rate
 rate BBhungry front bsoln Lava2TuleB # Lava to Tule rate
 
 rate all bsoln back Mconst
-#rate all back bsoln Mconst 
+rate all back bsoln Mconst 
 rate AAfull back fsoln Tule2LavaA # Lava to Tule rate
 rate AAhungry back fsoln Tule2LavaA # Lava to Tule rate
 rate ABfull back fsoln Tule2LavaA # Lava to Tule rate
@@ -336,11 +336,11 @@ reaction_serialnum off621 r1
 reaction_serialnum off612 r1
 reaction_serialnum off622 r1
 
-#cmd b pause
+cmd b pause
 
-output_root Testing2/
-output_files MolCountsNumber.txt SpeciesNumber.txt
-cmd i 0 Ending 0.1 molcountincmpts Tule Lava ONeils MolCountsNumber.txt
-cmd i 0 Ending 0.1 listmols2 SpeciesNumber.txt
+#output_root Testing2/
+#output_files MolCountsNumber.txt SpeciesNumber.txt
+#cmd i 0 Ending 0.1 molcountincmpts Tule Lava ONeils MolCountsNumber.txt
+#cmd i 0 Ending 0.1 listmols2 SpeciesNumber.txt
 
 end_file
