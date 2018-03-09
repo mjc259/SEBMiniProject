@@ -1,0 +1,288 @@
+## Box with particles
+
+#random_seed 1
+
+#graphics opengl_good
+
+dim 2
+boxsize 10
+species AAfull AAhungry ABfull ABhungry BBfull BBhungry AAAA AAAB ABAB AABB ABBB BBBB food  
+
+time_start 0
+time_stop Ending
+time_step Stepping
+
+color AAfull blue
+color AAhungry blue
+color ABfull red
+color ABhungry red
+color BBfull yellow
+color BBhungry yellow
+color food green 
+
+display_size all 2
+display_size food 0.5
+
+boundaries x -50 250 r
+boundaries y -50 50 r
+
+### General reactions
+
+read_file starting_positions_SIMNUM.txt
+
+ifundefine dscale
+define dscale 1
+endif
+variable diff = dscale*Generation_Time # 1
+
+difc AAfull diff
+difc ABfull diff
+difc BBfull diff
+difc AAhungry diff
+difc ABhungry diff
+difc BBhungry diff
+
+variable farming = Generation_Time*10^-5.2
+variable fertiliser = Generation_Time*10^-3.8
+
+reaction foodproduction 0 -> food farming
+reaction decay food -> 0 fertiliser
+
+define matingbaseprob 10^-1
+define Ms1 1
+define Ms2 1
+define Ms3 1
+
+variable mating1rate = Generation_Time*(Ms1^2)*matingbaseprob
+variable mating2rate = Generation_Time*Ms1*Ms2*matingbaseprob
+variable mating3rate = Generation_Time*Ms1*Ms3*matingbaseprob
+variable mating4rate = Generation_Time*(Ms2^2)*matingbaseprob
+variable mating5rate = Generation_Time*Ms2*Ms3*matingbaseprob
+variable mating6rate = Generation_Time*(Ms3^2)*matingbaseprob
+
+reaction mating1 AAfull + AAfull -> AAhungry + AAhungry + AAAA mating1rate
+reaction mating2 AAfull + ABfull -> AAhungry + ABhungry + AAAB mating2rate
+reaction mating3 AAfull + BBfull -> AAhungry + BBhungry + AABB mating3rate
+reaction mating4 ABfull + ABfull -> ABhungry + ABhungry + ABAB mating4rate
+reaction mating5 ABfull + BBfull -> ABhungry + BBhungry + ABBB mating5rate
+reaction mating6 BBfull + BBfull -> BBhungry + BBhungry + BBBB mating6rate
+
+define offspring Generation_Time
+
+variable offtwo = 0.25*offspring  
+
+reaction off111 AAAA -> AAhungry offtwo
+reaction off121 AAAA -> AAhungry offtwo
+reaction off112 AAAA -> AAhungry offtwo
+reaction off122 AAAA -> AAhungry offtwo
+
+reaction off211 AAAB -> AAhungry offtwo
+reaction off221 AAAB -> AAhungry offtwo
+reaction off212 AAAB -> ABhungry offtwo
+reaction off222 AAAB -> ABhungry offtwo
+
+reaction off311 ABAB -> AAhungry offtwo
+reaction off312 ABAB -> ABhungry offtwo
+reaction off321 ABAB -> ABhungry offtwo
+reaction off322 ABAB -> BBhungry offtwo
+
+reaction off411 ABBB -> ABhungry offtwo
+reaction off412 ABBB -> ABhungry offtwo
+reaction off421 ABBB -> BBhungry offtwo
+reaction off422 ABBB -> BBhungry offtwo
+
+reaction off511 BBBB -> BBhungry offtwo
+reaction off521 BBBB -> BBhungry offtwo
+reaction off512 BBBB -> BBhungry offtwo
+reaction off522 BBBB -> BBhungry offtwo
+
+reaction off611 AABB -> ABhungry offtwo
+reaction off621 AABB -> ABhungry offtwo
+reaction off612 AABB -> ABhungry offtwo
+reaction off622 AABB -> ABhungry offtwo
+
+variable appetite = Generation_Time*10^-3 # 3
+
+reaction hungryAAfull AAfull -> AAhungry appetite
+reaction hungryABfull ABfull -> ABhungry appetite
+reaction hungryBBfull BBfull -> BBhungry appetite
+
+reaction_serialnum hungryAAfull r1
+reaction_serialnum hungryABfull r1
+reaction_serialnum hungryBBfull r1
+
+variable death = Generation_Time*10^-3.3 # 5
+
+reaction hungryAAhungry AAhungry -> 0 death
+reaction hungryABhungry ABhungry -> 0 death
+reaction hungryBBhungry BBhungry -> 0 death
+
+### Surfaces
+
+start_surface Outline1
+action all both reflect
+color both purple 1
+polygon both edge
+panel rect +1 -50 50 100
+panel rect +1 -50 -50 100
+panel rect +0 -50 -50 100
+end_surface
+
+start_surface Outline2
+action all both reflect
+color both purple 1
+polygon both edge
+panel rect +1 50 50 100
+panel rect +1 50 -50 100
+#panel rect +0 150 -50 100
+end_surface
+
+start_surface Outline3
+action all both reflect
+color both purple 1
+polygon both edge
+panel rect +1 150 50 100
+panel rect +1 150 -50 100
+panel rect +0 250 -50 100
+end_surface
+
+
+start_surface WesternPass
+action all both reflect
+color both red 1
+polygon both edge
+panel rect +0 50 -50 100
+end_surface
+
+start_surface EasternPass
+action all both reflect
+color both red 1
+polygon both edge
+panel rect +0 150 -50 100
+end_surface
+
+
+### Compartments
+
+start_compartment Tule
+surface Outline1
+surface WesternPass
+point 0 0
+end_compartment
+
+start_compartment Lava
+surface Outline2
+surface WesternPass
+surface EasternPass
+point 100 0
+end_compartment
+
+start_compartment ONeils
+surface Outline3
+surface EasternPass
+point 200 0
+end_compartment
+
+
+### Compartment Specific Reactions 
+
+## Tule
+define R1baseEating Generation_Time #3
+define R1s11 0
+define R1s12 0
+define R1s22 0
+
+variable R1eating1 = (1+R1s11)*R1baseEating
+variable R1eating2 = (1+R1s12)*R1baseEating
+variable R1eating3 = (1+R1s22)*R1baseEating
+
+reaction compartment=Tule R1foodAA AAhungry + food -> AAfull R1eating1
+reaction compartment=Tule R1foodAB ABhungry + food -> ABfull R1eating2
+reaction compartment=Tule R1foodBB BBhungry + food -> BBfull R1eating3
+
+reaction_serialnum R1foodAA r1
+reaction_serialnum R1foodAB r1
+reaction_serialnum R1foodBB r1
+
+## Lava
+define R2baseEating Generation_Time #3
+define R2s11 0
+define R2s12 0
+ifundefine R2s22
+define R2s22 -0.5
+endif
+
+variable R2eating1 = (1+R2s11)*R2baseEating
+variable R2eating2 = (1+R2s12)*R2baseEating
+variable R2eating3 = (1+R2s22)*R2baseEating
+
+reaction compartment=Lava R2foodAA AAhungry + food -> AAfull R2eating1
+reaction compartment=Lava R2foodAB ABhungry + food -> ABfull R2eating2
+reaction compartment=Lava R2foodBB BBhungry + food -> BBfull R2eating3
+
+reaction_serialnum R2foodAA r1
+reaction_serialnum R2foodAB r1
+reaction_serialnum R2foodBB r1
+
+
+## ONeils
+define R3baseEating Generation_Time #3
+define R3s11 0
+define R3s12 0
+define R3s22 0
+
+variable R3eating1 = (1+R3s11)*R3baseEating
+variable R3eating2 = (1+R3s12)*R3baseEating
+variable R3eating3 = (1+R3s22)*R3baseEating
+
+reaction compartment=ONeils R3foodAA AAhungry + food -> AAfull R3eating1
+reaction compartment=ONeils R3foodAB ABhungry + food -> ABfull R3eating2
+reaction compartment=ONeils R3foodBB BBhungry + food -> BBfull R3eating3
+
+reaction_serialnum R3foodAA r1
+reaction_serialnum R3foodAB r1
+reaction_serialnum R3foodBB r1
+
+## Serial SIMNUMs for lineage tracking
+reaction_serialnum mating1 r1 r2 new
+reaction_serialnum mating2 r1 r2 new 
+reaction_serialnum mating3 r1 r2 new
+reaction_serialnum mating4 r1 r2 new
+reaction_serialnum mating5 r1 r2 new
+reaction_serialnum mating6 r1 r2 new
+
+reaction_serialnum off111 r1
+reaction_serialnum off121 r1
+reaction_serialnum off112 r1
+reaction_serialnum off122 r1
+
+reaction_serialnum off211 r1
+reaction_serialnum off221 r1
+reaction_serialnum off212 r1
+reaction_serialnum off222 r1
+
+reaction_serialnum off311 r1
+reaction_serialnum off312 r1
+reaction_serialnum off321 r1
+reaction_serialnum off322 r1
+
+reaction_serialnum off411 r1
+reaction_serialnum off412 r1
+reaction_serialnum off421 r1
+reaction_serialnum off422 r1
+
+reaction_serialnum off511 r1
+reaction_serialnum off521 r1
+reaction_serialnum off512 r1
+reaction_serialnum off522 r1
+
+reaction_serialnum off611 r1
+reaction_serialnum off621 r1
+reaction_serialnum off612 r1
+reaction_serialnum off622 r1
+
+output_files MolCountsSIMNUM.txt SpeciesSIMNUM.txt
+cmd i 0 Ending 0.1 molcountincmpts Tule Lava ONeils MolCountsSIMNUM.txt
+cmd i 0 Ending MigrationCheck listmols2 SpeciesSIMNUM.txt
+
+end_file

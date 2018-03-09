@@ -36,7 +36,7 @@ boundaries y -50 50 r
 #mol 20 BBfull u u
 #mol 55 food u u
 
-read_file starting_positions_4.0.txt # or 1.0
+read_file starting_positions_1.0.txt # or 1.0
 
 ifundefine dscale
 define dscale 1
